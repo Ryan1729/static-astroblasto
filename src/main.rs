@@ -339,18 +339,18 @@ struct MainState {
     screen_height: f32,
     input: InputState,
     player_shot_timeout: f32,
+    on_title_screen: bool,
 }
 
 impl MainState {
     fn new(ctx: &mut Context) -> GameResult<MainState> {
-        print_instructions();
-
         let assets = Assets::new(ctx)?;
         let player = create_player();
         let rocks = create_rocks(5, player.pos, 100.0, 250.0);
 
         let (width, height) = graphics::drawable_size(ctx);
         let s = MainState {
+            on_title_screen: true,
             player,
             shots: Vec::new(),
             rocks,
@@ -419,15 +419,6 @@ impl MainState {
 /// A couple of utility functions.
 /// **********************************************************************
 
-fn print_instructions() {
-    println!();
-    println!("Welcome to ASTROBLASTO!");
-    println!();
-    println!("How to play:");
-    println!("L/R arrow keys rotate your ship, up thrusts, space bar fires");
-    println!();
-}
-
 fn draw_actor(
     assets: &mut Assets,
     ctx: &mut Context,
@@ -451,6 +442,13 @@ fn draw_actor(
 /// **********************************************************************
 impl EventHandler for MainState {
     fn update(&mut self, ctx: &mut Context) -> GameResult {
+        if self.on_title_screen {
+            if self.input.fire {
+               self.on_title_screen = false;
+            }
+
+            return Ok(());
+        }
         const DESIRED_FPS: u32 = 60;
 
         while timer::check_update_time(ctx, DESIRED_FPS) {
@@ -512,34 +510,47 @@ impl EventHandler for MainState {
         // Just clear the screen...
         graphics::clear(ctx, graphics::BLACK);
 
-        // Loop over all objects drawing them...
-        {
-            let assets = &mut self.assets;
-            let coords = (self.screen_width, self.screen_height);
+        if self.on_title_screen {
+            let title_str = format!(r#"
+Welcome to ASTROBLASTO!
 
-            let p = &self.player;
-            draw_actor(assets, ctx, p, coords)?;
+How to play:
+L/R arrow keys rotate your ship,
+up thrusts, space bar fires
 
-            for s in &self.shots {
-                draw_actor(assets, ctx, s, coords)?;
+fire to start
+            "#);
+            let title_display = graphics::Text::new((title_str, self.assets.font, 32.0));
+            graphics::draw(ctx, &title_display, (Point2::new(10.0, 10.0), 0.0, graphics::WHITE))?;
+        } else {
+            // Loop over all objects drawing them...
+            {
+                let assets = &mut self.assets;
+                let coords = (self.screen_width, self.screen_height);
+    
+                let p = &self.player;
+                draw_actor(assets, ctx, p, coords)?;
+    
+                for s in &self.shots {
+                    draw_actor(assets, ctx, s, coords)?;
+                }
+    
+                for r in &self.rocks {
+                    draw_actor(assets, ctx, r, coords)?;
+                }
             }
-
-            for r in &self.rocks {
-                draw_actor(assets, ctx, r, coords)?;
-            }
+    
+            // And draw the GUI elements in the right places.
+            let level_dest = Point2::new(10.0, 10.0);
+            let score_dest = Point2::new(200.0, 10.0);
+    
+            let level_str = format!("Level: {}", self.level);
+            let score_str = format!("Score: {}", self.score);
+            let level_display = graphics::Text::new((level_str, self.assets.font, 32.0));
+            let score_display = graphics::Text::new((score_str, self.assets.font, 32.0));
+            graphics::draw(ctx, &level_display, (level_dest, 0.0, graphics::WHITE))?;
+            graphics::draw(ctx, &score_display, (score_dest, 0.0, graphics::WHITE))?;
         }
-
-        // And draw the GUI elements in the right places.
-        let level_dest = Point2::new(10.0, 10.0);
-        let score_dest = Point2::new(200.0, 10.0);
-
-        let level_str = format!("Level: {}", self.level);
-        let score_str = format!("Score: {}", self.score);
-        let level_display = graphics::Text::new((level_str, self.assets.font, 32.0));
-        let score_display = graphics::Text::new((score_str, self.assets.font, 32.0));
-        graphics::draw(ctx, &level_display, (level_dest, 0.0, graphics::WHITE))?;
-        graphics::draw(ctx, &score_display, (score_dest, 0.0, graphics::WHITE))?;
-
         // Then we flip the screen...
         graphics::present(ctx)?;
 
