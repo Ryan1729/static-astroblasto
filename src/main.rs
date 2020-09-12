@@ -238,9 +238,17 @@ struct Assets {
     hit_sound: audio::Source,
 }
 
+const PLAYER_PNG: &[u8] = include_bytes!("../resources/player.png");
+
 impl Assets {
     fn new(ctx: &mut Context) -> GameResult<Assets> {
-        let player_image = graphics::Image::new(ctx, "/player.png")?;
+        let player_rgba = image::load_from_memory_with_format(PLAYER_PNG, image::ImageFormat::Png)
+            .expect("player image is in the wrong format!")
+            .to_rgba();
+
+        let (w, h) = player_rgba.dimensions();
+
+        let player_image = graphics::Image::from_rgba8(ctx, w as u16, h as u16, &player_rgba)?;
         let shot_image = graphics::Image::new(ctx, "/shot.png")?;
         let rock_image = graphics::Image::new(ctx, "/rock.png")?;
         let font = graphics::Font::new(ctx, "/DejaVuSerif.ttf")?;
