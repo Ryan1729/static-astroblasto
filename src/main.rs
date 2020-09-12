@@ -245,6 +245,9 @@ const ROCK_PNG: &[u8] = include_bytes!("../resources/rock.png");
 const FONT_BYTES: &[u8] = include_bytes!("../resources/DejaVuSerif.ttf");
 const FONT_LICENSE: &str = include_str!("../resources/SIL Open Font License.txt");
 
+const PEW_BYTES: &[u8] = include_bytes!("../resources/pew.ogg");
+const BOOM_BYTES: &[u8] = include_bytes!("../resources/boom.ogg");
+
 impl Assets {
     fn new(ctx: &mut Context) -> GameResult<Assets> {
         let player_rgba = image::load_from_memory_with_format(PLAYER_PNG, image::ImageFormat::Png)
@@ -267,8 +270,14 @@ impl Assets {
 
         let font = graphics::Font::new_glyph_font_bytes(ctx, FONT_BYTES)?;
 
-        let shot_sound = audio::Source::new(ctx, "/pew.ogg")?;
-        let hit_sound = audio::Source::new(ctx, "/boom.ogg")?;
+        let shot_sound = audio::Source::from_data(
+            ctx,
+            audio::SoundData::from_bytes(PEW_BYTES),
+        )?;
+        let hit_sound = audio::Source::from_data(
+            ctx,
+            audio::SoundData::from_bytes(BOOM_BYTES),
+        )?;
 
         Ok(Assets {
             player_image,
