@@ -13,9 +13,6 @@ use ggez::{Context, ContextBuilder, GameResult};
 use ggez::nalgebra as na;
 use rand;
 
-use std::env;
-use std::path;
-
 type Point2 = na::Point2<f32>;
 type Vector2 = na::Vector2<f32>;
 
@@ -346,8 +343,6 @@ struct MainState {
 
 impl MainState {
     fn new(ctx: &mut Context) -> GameResult<MainState> {
-        println!("Game resource path: {:?}", ctx.filesystem);
-
         print_instructions();
 
         let assets = Assets::new(ctx)?;
@@ -631,21 +626,9 @@ pub fn main() -> GameResult {
         }
     }
 
-    
-    // We add the CARGO_MANIFEST_DIR/resources to the resource paths
-    // so that ggez will look in our cargo project directory for files.
-    let resource_dir = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
-        let mut path = path::PathBuf::from(manifest_dir);
-        path.push("resources");
-        path
-    } else {
-        path::PathBuf::from("./resources")
-    };
-
     let cb = ContextBuilder::new("astroblasto", "ggez")
         .window_setup(conf::WindowSetup::default().title("Astroblasto!"))
-        .window_mode(conf::WindowMode::default().dimensions(640.0, 480.0))
-        .add_resource_path(resource_dir);
+        .window_mode(conf::WindowMode::default().dimensions(640.0, 480.0));
 
     let (ctx, events_loop) = &mut cb.build()?;
 
