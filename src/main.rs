@@ -637,6 +637,8 @@ pub fn main() -> GameResult {
         }
     }
 
+    windows_nonsense();
+
     let cb = ContextBuilder::new("astroblasto", "ggez")
         .window_setup(conf::WindowSetup::default().title("Astroblasto!"))
         .window_mode(conf::WindowMode::default().dimensions(640.0, 480.0));
@@ -646,3 +648,10 @@ pub fn main() -> GameResult {
     let game = &mut MainState::new(ctx)?;
     event::run(ctx, events_loop, game)
 }
+
+#[cfg(windows)]
+fn windows_nonsense() {
+    unsafe { winapi::um::wincon::FreeConsole(); }
+}
+#[cfg(not(windows))]
+fn windows_nonsense() {}

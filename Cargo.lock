@@ -2047,6 +2047,7 @@ dependencies = [
  "ggez",
  "image 0.23.9",
  "rand 0.7.3",
+ "winapi",
 ]
 
 [[package]]

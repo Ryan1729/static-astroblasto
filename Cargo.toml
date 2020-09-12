@@ -10,3 +10,6 @@ edition = "2018"
 ggez = "0.5"
 image = "0.23"
 rand = "0.7"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["winuser"] }
