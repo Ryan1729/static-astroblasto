@@ -242,6 +242,9 @@ const PLAYER_PNG: &[u8] = include_bytes!("../resources/player.png");
 const SHOT_PNG: &[u8] = include_bytes!("../resources/shot.png");
 const ROCK_PNG: &[u8] = include_bytes!("../resources/rock.png");
 
+const FONT_BYTES: &[u8] = include_bytes!("../resources/DejaVuSerif.ttf");
+const FONT_LICENSE: &str = include_str!("../resources/SIL Open Font License.txt");
+
 impl Assets {
     fn new(ctx: &mut Context) -> GameResult<Assets> {
         let player_rgba = image::load_from_memory_with_format(PLAYER_PNG, image::ImageFormat::Png)
@@ -262,7 +265,7 @@ impl Assets {
         let (w, h) = rock_rgba.dimensions();
         let rock_image = graphics::Image::from_rgba8(ctx, w as u16, h as u16, &rock_rgba)?;
 
-        let font = graphics::Font::new(ctx, "/DejaVuSerif.ttf")?;
+        let font = graphics::Font::new_glyph_font_bytes(ctx, FONT_BYTES)?;
 
         let shot_sound = audio::Source::new(ctx, "/pew.ogg")?;
         let hit_sound = audio::Source::new(ctx, "/boom.ogg")?;
@@ -600,6 +603,26 @@ impl EventHandler for MainState {
 /// **********************************************************************
 
 pub fn main() -> GameResult {
+    let mut args = std::env::args();
+    args.next(); // exe name
+
+    while let Some(s) = args.next() {
+        let s: &str = &s;
+        match s {
+            "--help" => {
+                println!("--help            show this help message.");
+                println!("--font-license    show the font license.");
+                std::process::exit(0);
+            },
+            "--font-license" => {
+                println!("{}", FONT_LICENSE);
+                std::process::exit(0);
+            },
+            _ => {}
+        }
+    }
+
+    
     // We add the CARGO_MANIFEST_DIR/resources to the resource paths
     // so that ggez will look in our cargo project directory for files.
     let resource_dir = if let Ok(manifest_dir) = env::var("CARGO_MANIFEST_DIR") {
