@@ -239,18 +239,29 @@ struct Assets {
 }
 
 const PLAYER_PNG: &[u8] = include_bytes!("../resources/player.png");
+const SHOT_PNG: &[u8] = include_bytes!("../resources/shot.png");
+const ROCK_PNG: &[u8] = include_bytes!("../resources/rock.png");
 
 impl Assets {
     fn new(ctx: &mut Context) -> GameResult<Assets> {
         let player_rgba = image::load_from_memory_with_format(PLAYER_PNG, image::ImageFormat::Png)
             .expect("player image is in the wrong format!")
             .to_rgba();
-
         let (w, h) = player_rgba.dimensions();
-
         let player_image = graphics::Image::from_rgba8(ctx, w as u16, h as u16, &player_rgba)?;
-        let shot_image = graphics::Image::new(ctx, "/shot.png")?;
-        let rock_image = graphics::Image::new(ctx, "/rock.png")?;
+
+        let shot_rgba = image::load_from_memory_with_format(SHOT_PNG, image::ImageFormat::Png)
+            .expect("shot image is in the wrong format!")
+            .to_rgba();
+        let (w, h) = shot_rgba.dimensions();
+        let shot_image = graphics::Image::from_rgba8(ctx, w as u16, h as u16, &shot_rgba)?;
+
+        let rock_rgba = image::load_from_memory_with_format(ROCK_PNG, image::ImageFormat::Png)
+            .expect("rock image is in the wrong format!")
+            .to_rgba();
+        let (w, h) = rock_rgba.dimensions();
+        let rock_image = graphics::Image::from_rgba8(ctx, w as u16, h as u16, &rock_rgba)?;
+
         let font = graphics::Font::new(ctx, "/DejaVuSerif.ttf")?;
 
         let shot_sound = audio::Source::new(ctx, "/pew.ogg")?;
